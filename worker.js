@@ -3239,12 +3239,8 @@ function replaceHysteria2(link, replacements) {
     replacements[randomDomain] = server;
     replacements[randomUsername] = username;
 
-    // 替换服务器地址和用户名
-    const replacedServer = server.replace(server, randomDomain);
-    const replacedUsername = username.replace(username, randomUsername);
-
     // 重建链接
-    return `hysteria2://${replacedUsername}@${replacedServer}/?${queryString}`;
+    return `hysteria2://${randomUsername}@${randomDomain}/?${queryString}`;
 }
 function replaceYAML(yamlObj, replacements) {
   if (!yamlObj.proxies) {
