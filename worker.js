@@ -3224,23 +3224,41 @@ function replaceHysteria(link, replacements) {
   return link.replace(server, randomDomain);
 }
 function replaceHysteria2(link, replacements) {
-    // 使用正则表达式匹配链接结构，并提取出有用的组件
-    const regexMatch = link.match(/hysteria2:\/\/(.*?)@(.*?)\/\?(.*)/);
+    const regexMatch = link.match(/hysteria2:\/\/(.*?)@(.*?):(\d+)(\/\?[^#]*)(#.*)?/);
     if (!regexMatch) {
         return;
     }
-    const [username, server, queryString] = regexMatch.slice(1);
 
-    // 生成随机的域名和用户名，以供替换使用
-    const randomUsername = generateRandomStr(12);
-    const randomDomain = generateRandomStr(12) + ".com";
+    let [auth, hostname, port, queryString, fragment] = regexMatch.slice(1);
 
-    // 记录原始值和替换值
-    replacements[randomDomain] = server;
-    replacements[randomUsername] = username;
+    // 生成随机字符串用于替换敏感信息
+    const randomAuth = generateRandomStr(12);
+    const randomHostname = generateRandomStr(12) + ".com";
+    const randomPort = Math.floor(Math.random() * 65535);
 
-    // 重建链接
-    return `hysteria2://${randomUsername}@${randomDomain}/?${queryString}`;
+    // 记录替换
+    replacements[randomAuth] = auth;
+    replacements[randomHostname] = hostname;
+    replacements[randomPort] = port;
+
+    // 替换认证信息、服务器地址和端口
+    auth = randomAuth;
+    hostname = randomHostname;
+    port = randomPort;
+
+    // 检查并替换混淆密码
+    if (queryString.includes('obfs=salamander')) {
+        const passwordMatch = queryString.match(/obfs-password=([^&]*)/);
+        if (passwordMatch) {
+            const originalPassword = passwordMatch[1];
+            const randomPassword = generateRandomStr(12);
+            queryString = queryString.replace(`obfs-password=${originalPassword}`, `obfs-password=${randomPassword}`);
+            replacements[randomPassword] = originalPassword;
+        }
+    }
+
+    // 重构链接
+    return `hysteria2://${auth}@${hostname}:${port}${queryString}${fragment || ''}`;
 }
 function replaceYAML(yamlObj, replacements) {
   if (!yamlObj.proxies) {
