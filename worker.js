@@ -3224,14 +3224,27 @@ function replaceHysteria(link, replacements) {
   return link.replace(server, randomDomain);
 }
 function replaceHysteria2(link, replacements) {
-    const regexMatch = link.match(/hysteria2:\/\/(.*?):(.*?)@(.*):(\d+)\?(.*)/);
+    // 使用正则表达式匹配链接结构，并提取出有用的组件
+    const regexMatch = link.match(/hysteria2:\/\/(.*?)@(.*?)\/\?(.*)/);
     if (!regexMatch) {
         return;
     }
-    const [, username, password, server, port, params] = regexMatch;
+    const [username, server, queryString] = regexMatch.slice(1);
+
+    // 生成随机的域名和用户名，以供替换使用
+    const randomUsername = generateRandomStr(12);
     const randomDomain = generateRandomStr(12) + ".com";
+
+    // 记录原始值和替换值
     replacements[randomDomain] = server;
-    return link.replace(server, randomDomain);
+    replacements[randomUsername] = username;
+
+    // 替换服务器地址和用户名
+    const replacedServer = server.replace(server, randomDomain);
+    const replacedUsername = username.replace(username, randomUsername);
+
+    // 重建链接
+    return `hysteria2://${replacedUsername}@${replacedServer}/?${queryString}`;
 }
 function replaceYAML(yamlObj, replacements) {
   if (!yamlObj.proxies) {
