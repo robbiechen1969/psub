@@ -3213,16 +3213,6 @@ function replaceTrojan(link, replacements, isRecovery) {
     return link.replace(regex, (match) => cReplace(match, uuid, randomUUID, server, randomDomain));
   }
 }
-function replaceHysteria2(link, replacements) {
-    const regexMatch = link.match(/hysteria2:\/\/(.*?):(.*?)@(.*):(\d+)\?(.*)/);
-    if (!regexMatch) {
-        return;
-    }
-    const [, username, password, server, port, params] = regexMatch;
-    const randomDomain = generateRandomStr(12) + ".com";
-    replacements[randomDomain] = server;
-    return link.replace(server, randomDomain);
-}
 function replaceHysteria(link, replacements) {
   const regexMatch = link.match(/hysteria:\/\/(.*):(.*?)\?/);
   if (!regexMatch) {
@@ -3232,6 +3222,16 @@ function replaceHysteria(link, replacements) {
   const randomDomain = generateRandomStr(12) + ".com";
   replacements[randomDomain] = server;
   return link.replace(server, randomDomain);
+}
+function replaceHysteria2(link, replacements) {
+    const regexMatch = link.match(/hysteria2:\/\/(.*?):(.*?)@(.*):(\d+)\?(.*)/);
+    if (!regexMatch) {
+        return;
+    }
+    const [, username, password, server, port, params] = regexMatch;
+    const randomDomain = generateRandomStr(12) + ".com";
+    replacements[randomDomain] = server;
+    return link.replace(server, randomDomain);
 }
 function replaceYAML(yamlObj, replacements) {
   if (!yamlObj.proxies) {
