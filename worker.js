@@ -3238,30 +3238,28 @@ function replaceHysteria2(link, replacements) {
 
     // 强制生成随机字符串用于替换服务器地址
     const randomHostname = generateRandomStr(12) + ".com";
-    const randomPort = Math.floor(Math.random() * 65535);
-
-    // 记录替换
-    replacements[randomHostname] = hostname;
-    replacements[randomPort] = port;
-
-    // 替换服务器地址和端口
+    replacements[hostname] = randomHostname; // 保留原服务器地址的映射
     hostname = randomHostname;
+
+    // 替换服务器端口
+    const randomPort = Math.floor(Math.random() * 65535);
+    replacements[port] = randomPort.toString(); // 保留原端口的映射
     port = randomPort;
 
     // 只有当有认证信息时才替换
     if (auth && auth.length > 0) {
         const randomAuth = generateRandomStr(12);
-        replacements[randomAuth] = auth;
+        replacements[auth] = randomAuth; // 保留原认证信息的映射
         auth = randomAuth;
     }
 
-    // 检查并替换混淆密码，无论是否有混淆类型指定
+    // 检查是否存在混淆密码，并进行替换
     const passwordMatch = queryString.match(/obfs-password=([^&]*)/);
     if (passwordMatch) {
         const originalPassword = passwordMatch[1];
         const randomPassword = generateRandomStr(12);
+        replacements[originalPassword] = randomPassword; // 保留原混淆密码的映射
         queryString = queryString.replace(`obfs-password=${originalPassword}`, `obfs-password=${randomPassword}`);
-        replacements[randomPassword] = originalPassword;
     }
 
     // 重构链接
