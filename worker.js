@@ -3224,12 +3224,18 @@ function replaceHysteria(link, replacements) {
   return link.replace(server, randomDomain);
 }
 function replaceHysteria2(link, replacements) {
-    const regexMatch = link.match(/hysteria2:\/\/(.*?)@(.*?):(\d+)(\/\?[^#]*)(#.*)?/);
+    // 端口号在正则表达式中变为可选
+    const regexMatch = link.match(/hysteria2:\/\/(.*?)@(.*?)(?::(\d+))?(\/\?[^#]*)(#.*)?/);
     if (!regexMatch) {
         return;
     }
 
     let [auth, hostname, port, queryString, fragment] = regexMatch.slice(1);
+
+    // 如果端口号不存在，则默认为443
+    if (!port) {
+        port = '443';
+    }
 
     // 强制生成随机字符串用于替换服务器地址
     const randomHostname = generateRandomStr(12) + ".com";
@@ -3264,6 +3270,7 @@ function replaceHysteria2(link, replacements) {
     // 重构链接
     return `hysteria2://${auth}@${hostname}:${port}${queryString}${fragment || ''}`;
 }
+
 
 function replaceYAML(yamlObj, replacements) {
   if (!yamlObj.proxies) {
