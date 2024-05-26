@@ -3233,35 +3233,35 @@ function replaceHysteria2(link, replacements) {
 
     // 强制生成随机字符串用于替换服务器地址
     const randomHostname = generateRandomStr(12) + ".com";
-    replacements[hostname] = randomHostname;
-    hostname = randomHostname;
+    const randomPort = Math.floor(Math.random() * 65535);
 
-    // 如果原始链接有认证信息，则替换
+    // 记录替换
+    replacements[randomHostname] = hostname;
+    replacements[randomPort] = port;
+
+    // 替换服务器地址和端口
+    hostname = randomHostname;
+    port = randomPort;
+
+    // 只有当有认证信息时才替换
     if (auth && auth.length > 0) {
         const randomAuth = generateRandomStr(12);
-        replacements[auth] = randomAuth;
+        replacements[randomAuth] = auth;
         auth = randomAuth;
     }
 
-    // 如果原始链接有端口信息，则替换
-    if (port && port.length > 0) {
-        const randomPort = Math.floor(Math.random() * 65535).toString();
-        replacements[port] = randomPort;
-        port = randomPort;
-    }
-
-    // 检查是否存在混淆密码配置，只在其存在时替换
+    // 检查并替换混淆密码
     if (queryString.includes('obfs=salamander')) {
         const passwordMatch = queryString.match(/obfs-password=([^&]*)/);
         if (passwordMatch) {
             const originalPassword = passwordMatch[1];
             const randomPassword = generateRandomStr(12);
-            replacements[originalPassword] = randomPassword;
             queryString = queryString.replace(`obfs-password=${originalPassword}`, `obfs-password=${randomPassword}`);
+            replacements[randomPassword] = originalPassword;
         }
     }
 
-    // 重新构建链接，保留任何现有片段
+    // 重构链接
     return `hysteria2://${auth}@${hostname}:${port}${queryString}${fragment || ''}`;
 }
 
