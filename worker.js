@@ -3231,22 +3231,26 @@ function replaceHysteria2(link, replacements) {
 
     let [auth, hostname, port, queryString, fragment] = regexMatch.slice(1);
 
-    // 生成随机字符串用于替换敏感信息
-    const randomAuth = generateRandomStr(12);
+    // 总是生成随机字符串用于替换服务器地址
     const randomHostname = generateRandomStr(12) + ".com";
-    const randomPort = Math.floor(Math.random() * 65535);
-
-    // 记录替换
-    replacements[randomAuth] = auth;
-    replacements[randomHostname] = hostname;
-    replacements[randomPort] = port;
-
-    // 替换认证信息、服务器地址和端口
-    auth = randomAuth;
+    replacements[hostname] = randomHostname;
     hostname = randomHostname;
-    port = randomPort;
 
-    // 检查并替换混淆密码
+    // 如果存在则替换认证信息
+    if (auth) {
+        const randomAuth = generateRandomStr(12);
+        replacements[auth] = randomAuth;
+        auth = randomAuth;
+    }
+
+    // 如果存在则替换端口
+    if (port) {
+        const randomPort = Math.floor(Math.random() * 65535);
+        replacements[port] = randomPort;
+        port = randomPort;
+    }
+
+    // 检查并替换混淆密码，只有当链接中存在混淆密码配置时进行
     if (queryString.includes('obfs=salamander')) {
         const passwordMatch = queryString.match(/obfs-password=([^&]*)/);
         if (passwordMatch) {
@@ -3260,6 +3264,7 @@ function replaceHysteria2(link, replacements) {
     // 重构链接
     return `hysteria2://${auth}@${hostname}:${port}${queryString}${fragment || ''}`;
 }
+
 function replaceYAML(yamlObj, replacements) {
   if (!yamlObj.proxies) {
     return;
