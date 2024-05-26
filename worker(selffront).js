@@ -3224,33 +3224,31 @@ function replaceHysteria(link, replacements) {
   return link.replace(server, randomDomain);
 }
 function replaceHysteria2(link, replacements) {
-    const regexMatch = link.match(/hysteria2:\/\/(.*?)@(.*?)(?::(\d+))?(\/\?[^#]*)(#.*)?/);
+    const regexMatch = link.match(/hysteria2:\/\/(.*?)@(.*?)(?::(\d+))?/);
     if (!regexMatch) {
         return; // 如果不符合格式，不进行任何操作
     }
 
-    let [auth, hostname, port, queryString, fragment] = regexMatch.slice(1);
+    // 提取必要的部分
+    const [, auth, hostname, port] = regexMatch;
 
-    // 如果端口号不存在，则默认为443
-    port = port || '443';
-
-    // 替换认证信息
+    // 生成随机认证信息
     const randomAuth = generateRandomStr(12);
     replacements[auth] = randomAuth;
-    auth = randomAuth;
 
-    // 强制生成随机字符串用于替换服务器地址
+    // 生成随机服务器地址
     const randomHostname = generateRandomStr(12) + ".com";
     replacements[hostname] = randomHostname;
-    hostname = randomHostname;
 
-    // 替换服务器端口
-    const randomPort = Math.floor(Math.random() * 65535);
-    replacements[port] = randomPort.toString();
-    port = randomPort;
+    // 处理端口号，如果没有提供，则默认为443
+    const randomPort = port ? Math.floor(Math.random() * 65535) : '443';
+    if (port) {
+        replacements[port] = randomPort.toString();
+    }
 
-    // 重构链接
-    return `hysteria2://${auth}@${hostname}:${port}${queryString}${fragment || ''}`;
+    // 重构链接，保留原始链接的其余部分
+    const restOfLink = link.substring(regexMatch[0].length);
+    return `hysteria2://${randomAuth}@${randomHostname}:${randomPort}${restOfLink}`;
 }
 
 function replaceYAML(yamlObj, replacements) {
